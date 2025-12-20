@@ -1,0 +1,6 @@
+
+- rescue
+  - /etc/fstab
+  - password root and student
+
+- setup networking and hostname
