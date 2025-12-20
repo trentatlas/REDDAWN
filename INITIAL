@@ -4,3 +4,100 @@
   - password root and student
 
 - setup networking and hostname
+
+- ALLOW SSH
+ - #firewall-cmd --state
+ - #firewall-cmd --add-service=ssh --zone=block --permanent
+ - #firewall-cmd --reload
+ - #firewall-cmd --list-all --zone=block
+ - /etc/ssh/sshd_config
+   - ListenAddress 192.168.3.242
+
+- PERSISTIST JOURNALD
+  #mkdir -p /var/log/journal
+  #systemctl restart systemd-journal-flush.service 
+ 
+
+- CONFIGURE /opt/ISO/rhel-10.1-x86_64-dvd.iso /REPO
+   - vi /etc/fstab
+     /opt/ISO/rhel-10.1-x86_64-dvd.iso       /REPO   iso9660 ro 0 0
+   - mkdir -p /REPO
+   - systemctl daemon-reload 
+   - mount -a
+   - df -h /REPO
+
+-- ADD REPO from ISO
+   - # dnf config-manager --add-repo=file:///REPO/AppStream/
+       Adding repo from: file:///REPO/AppStream/
+   - # dnf config-manager --add-repo=file:///REPO/BaseOS/
+       Adding repo from: file:///REPO/BaseOS/
+
+   - add gpgkey
+     gpgcheck=1
+     gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+-- install 
+   chrony, tar, which, yggdrasil virt-what
+   rsync, vim , bash complete
+
+   #dnf install chrony tar which virt-what rsync vim git 
+   #dnf install bash-completion
+
+-- install SELINUX TOOLS
+   #dnf install selinux-policy policycoreutils setools setroubleshoot setroubleshoot-server
+
+-- PULL GIT
+
+   - git clone https://github.com/trentatlas/RHCSA-v10.git
+   - git clone https://github.com/trentatlas/REDDAWN.git
+ 
+-- install desktop and change default target from multi to graphical
+
+   dnf group list 
+   dnf group list --hidden
+   #dnf groupinstall GNOME
+   #systemctl set-default graphical.target 
+   #systemctl reboot
+
+ 
+-- CONFIGURE SSH to run on port 2222/tcp
+
+  #firewall-cmd  --add-port=2222/tcp --zone=block --permanent
+  #firewall-cmd --reload
+
+  # vim /etc/ssh/sshd_config
+  # semanage port -a -t ssh_port_t -p tcp #PORTNUMBER
+  #
+  Port 2222
+
+  #semanage port -a -t ssh_port_t -p tcp 2222
+  #systemctl reboot
+
+-- allow ICMP and do timestamp blocks - BLOCK ZONE
+
+   timestamp-reply
+   timestamp-request
+
+
+   firewall-cmd --add-protocol=icmp --zone=block --permanent
+   firewall-cmd reload 
+
+   firewall-cmd --add-icmp-block=timestamp-request --zone=block --permanent
+   firewall-cmd --add-icmp-block=timestamp-reply --zone=block --permanent
+   firewall-cmd --reload
+   firewall-cmd --list-all --zone=block 
+
+
+
+ -- CONFIGURE chrony logging and change TZ to Alaska
+# timedatectl set-timezone US/Alaska
+# date
+
+- Patch and reboot
+
+
+- disable kdump 
+  grub 18
+
+
+Sat Dec 20 08:48:34 AM AKST 2025 
