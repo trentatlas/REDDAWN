@@ -59,6 +59,16 @@
    #systemctl set-default graphical.target 
    #systemctl reboot
 
+
+create users
+-- student member of wheel/sudo
+ flatpak install firefox, available to all users
+
+
+-- intern not member of wheel/ no sudo
+ install Chrom, only for intern
+ 
+
  
 -- CONFIGURE SSH to run on port 2222/tcp
 
@@ -101,3 +111,92 @@
 
 
 Sat Dec 20 08:48:34 AM AKST 2025 
+
+
+- DISKS
+
+- SDA
+use remainder of DISK for ROOTVG
+
+
+
+-SDB  
+ #pvcreate /dev/sdb
+ # vgcreate VGB /dev/sdb
+ create /opt/logs/ 25% of VGB xfs with LABEL
+ #lvcreate -l25%FREE -n OPTLOGSLV VGB
+
+ # lsblk /dev/sdb
+ NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+ sdb               8:16   1 29.7G  0 disk 
+ └─VGB-OPTLOGSLV 253:9    0  7.4G  0 lvm  
+
+ /etc/fstab
+ LABEL="OPTLOGSLV" /opt/logs	xfs	defaults 0 0
+
+
+
+- SDC
+parted
+make gpt partition
+
+
+make 10G optapp 
+(parted) mkpart OPTAPP
+File system type?  [ext2]? xfs                                            
+Start? 1                                                                  
+End? 10G                                                                  
+(parted) print                                                            
+Model: SanDisk SDDR-B531 (scsi)
+Disk /dev/sdc: 31.9GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name    Flags
+ 1      1049kB  10.0GB  9999MB  xfs          OPTAPP
+
+
+
+mkpart 10 OPTORACLE ext4
+(parted) mkpart OPTORACLE                                                 
+File system type?  [ext2]? ext4                                           
+Start? 10G                                                                
+End? '20G                                                                 
+(parted) print
+Model: SanDisk SDDR-B531 (scsi)
+Disk /dev/sdc: 31.9GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name       Flags
+ 1      1049kB  10.0GB  9999MB  xfs          OPTAPP
+ 2      10.0GB  20.0GB  9999MB  ext4         OPTORACLE
+
+(parted)                                            
+
+
+(parted) mkpart THEEND
+File system type?  [ext2]? xfs                                            
+Start? 20G
+End? -1s
+Warning: You requested a partition from 20.0GB to 31.9GB (sectors 39062500..62333951).
+The closest location we can manage is 20.0GB to 31.9GB (sectors 39061504..62333918).
+Is this still acceptable to you?
+Yes/No? Yes                                                               
+(parted) print                                                            
+Model: SanDisk SDDR-B531 (scsi)
+Disk /dev/sdc: 31.9GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name       Flags
+ 1      1049kB  10.0GB  9999MB               OPTAPP
+ 2      10.0GB  20.0GB  9999MB               OPTORACLE
+ 3      20.0GB  31.9GB  11.9GB  xfs          THEEND
+
+(parted)                                                
+ 
+
